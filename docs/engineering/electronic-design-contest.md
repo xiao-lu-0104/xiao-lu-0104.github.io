@@ -1,6 +1,6 @@
 ---
 title: 2026 电赛 G 题：基于 Zynq 的频谱分析与参数测量
-date: 2026-08-20
+date: 2026-07-29
 tags: [FPGA, Zynq, 电赛, 信号处理, CZT]
 summary: PL 以 8.192 MSPS 采集信号，PS 侧用「周期截取 + FFT + CZT」测频率、幅值、相位与谐波，串口屏实时显示。
 ---
