@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>内容管理台</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7fb;
+    --panel: #ffffff;
+    --border: #e4e7ec;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --brand: #4f6ef7;
+    --brand-soft: rgba(79, 110, 247, 0.12);
+    --danger: #d93025;
+    --ok: #16a34a;
+    --input-bg: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161c;
+      --panel: #1b1e26;
+      --border: #2c313c;
+      --text: #e5e7eb;
+      --muted: #9aa3b2;
+      --brand: #7d95ff;
+      --brand-soft: rgba(125, 149, 255, 0.16);
+      --danger: #ff6b6b;
+      --ok: #4ade80;
+      --input-bg: #14161c;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  [hidden] { display: none !important; }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 56px;
+    padding: 0 18px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .brand-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand), #22d3ee);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  a.ghost, button {
+    font: inherit;
+  }
+
+  a.ghost {
+    padding: 7px 12px;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  a.ghost:hover {
+    color: var(--brand);
+    border-color: var(--brand);
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  aside {
+    flex-shrink: 0;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+  }
+
+  .cats {
+    display: flex;
+    gap: 4px;
+    padding: 12px 12px 6px;
+  }
+
+  .cat {
+    flex: 1;
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .cat:hover { color: var(--brand); }
+
+  .cat.active {
+    color: var(--brand);
+    background: var(--brand-soft);
+    font-weight: 600;
+  }
+
+  .search-wrap {
+    padding: 6px 12px 10px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+  }
+
+  .search-wrap input:focus { border-color: var(--brand); }
+
+  .list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px 16px;
+  }
+
+  .item {
+    padding: 10px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .item:hover { background: var(--brand-soft); }
+
+  .item.active { background: var(--brand); }
+
+  .item.active .item-title,
+  .item.active .item-meta { color: #fff; }
+
+  .item.active .badge { background: rgba(255, 255, 255, 0.22); color: #fff; }
+
+  .item-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .badge {
+    flex-shrink: 0;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--brand-soft);
+    border-radius: 999px;
+  }
+
+  .badge.draft { background: rgba(217, 48, 37, 0.14); color: var(--danger); }
+
+  .empty-list {
+    padding: 32px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding: 18px 24px 22px;
+    overflow-y: auto;
+  }
+
+  .placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--muted);
+  }
+
+  .placeholder .big { font-size: 40px; }
+  .placeholder p { margin: 0; font-size: 14px; }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 100%;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field.grow { flex: 1; }
+  .field.slug { flex: 0 0 240px; }
+
+  label.caption {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  input[type="text"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="date"]:focus,
+  textarea:focus {
+    border-color: var(--brand);
+  }
+
+  #title {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 10px 12px;
+  }
+
+  textarea {
+    flex: 1;
+    min-height: 360px;
+    resize: vertical;
+    line-height: 1.75;
+    font-family: Consolas, "Cascadia Code", "SFMono-Regular", Menlo, monospace;
+    font-size: 13.5px;
+    tab-size: 2;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar .spacer { flex: 1; }
+
+  .status {
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  button.btn {
+    padding: 8px 15px;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  button.btn:hover {
+    color: var(--brand);
+    border-color: var(--brand);
+  }
+
+  button.primary {
+    color: #fff;
+    background: var(--brand);
+    border-color: var(--brand);
+    font-weight: 600;
+  }
+
+  button.primary:hover {
+    color: #fff;
+    filter: brightness(1.08);
+  }
+
+  button.danger {
+    color: var(--danger);
+    border-color: rgba(217, 48, 37, 0.35);
+  }
+
+  button.danger:hover {
+    color: #fff;
+    background: var(--danger);
+    border-color: var(--danger);
+  }
+
+  button.small {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .bottom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 4px;
+  }
+
+  .draft-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  #toast {
+    position: fixed;
+    top: 68px;
+    right: 22px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .toast {
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #fff;
+    background: #333;
+    border-radius: 9px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.ok { background: var(--ok); }
+  .toast.error { background: var(--danger); }
+
+  @media (max-width: 860px) {
+    main { flex-direction: column; }
+    aside {
+      width: 100%;
+      max-height: 38vh;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .row { flex-direction: column; }
+    .field.slug { flex: 1; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-dot"></span>内容管理台</div>
+    <div class="header-actions">
+      <span class="status" id="headerStatus"></span>
+      <a class="ghost" id="siteLink" href="http://localhost:5173/" target="_blank" rel="noreferrer">打开站点 ↗</a>
+      <button class="btn primary" id="newBtn">+ 新建</button>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <div class="cats" id="cats"></div>
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="搜索标题 / 标签…" />
+      </div>
+      <div class="list" id="list"></div>
+    </aside>
+
+    <section class="editor">
+      <div class="placeholder" id="placeholder">
+        <div class="big">📝</div>
+        <p>从左侧选择一篇，或点击右上角「新建」</p>
+      </div>
+
+      <form id="form" hidden>
+        <input type="text" id="title" placeholder="文章标题" />
+        <div class="row">
+          <div class="field slug">
+            <label class="caption" for="slug">文件名（影响链接，改动会重命名）</label>
+            <input type="text" id="slug" placeholder="my-post" />
+          </div>
+          <div class="field">
+            <label class="caption" for="date">日期</label>
+            <input type="date" id="date" />
+          </div>
+          <div class="field grow">
+            <label class="caption" for="tags">标签（逗号分隔）</label>
+            <input type="text" id="tags" placeholder="Verilog, 调试" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="caption" for="summary">摘要（显示在列表卡片上）</label>
+          <input type="text" id="summary" placeholder="一句话说明这篇写了什么" />
+        </div>
+
+        <div class="toolbar">
+          <button type="button" class="btn small" id="insertImageBtn">🖼 插入图片</button>
+          <button type="button" class="btn small" id="previewBtn">↗ 在站点中预览</button>
+          <span class="spacer"></span>
+          <span class="status" id="status"></span>
+        </div>
+
+        <textarea id="content" spellcheck="false" placeholder="开始写 Markdown…"></textarea>
+
+        <div class="bottom">
+          <button type="submit" class="btn primary" id="saveBtn">保存 (Ctrl+S)</button>
+          <label class="draft-toggle">
+            <input type="checkbox" id="draft" /> 存为草稿（不会出现在列表中）
+          </label>
+          <span class="spacer" style="flex: 1"></span>
+          <button type="button" class="btn danger" id="deleteBtn">删除</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <input type="file" id="fileInput" accept="image/*" hidden />
+  <div id="toast"></div>
+
+<script>
+(() => {
+  const els = {
+    cats: document.getElementById('cats'),
+    list: document.getElementById('list'),
+    search: document.getElementById('search'),
+    form: document.getElementById('form'),
+    placeholder: document.getElementById('placeholder'),
+    title: document.getElementById('title'),
+    slug: document.getElementById('slug'),
+    date: document.getElementById('date'),
+    tags: document.getElementById('tags'),
+    summary: document.getElementById('summary'),
+    content: document.getElementById('content'),
+    draft: document.getElementById('draft'),
+    status: document.getElementById('status'),
+    headerStatus: document.getElementById('headerStatus'),
+    newBtn: document.getElementById('newBtn'),
+    deleteBtn: document.getElementById('deleteBtn'),
+    uploadBtn: document.getElementById('insertImageBtn'),
+    previewBtn: document.getElementById('previewBtn'),
+    fileInput: document.getElementById('fileInput'),
+    siteLink: document.getElementById('siteLink'),
+    toast: document.getElementById('toast'),
+  }
+
+  const state = {
+    categories: [],
+    category: 'engineering',
+    items: [],
+    currentSlug: null,
+    dirty: false,
+    keywords: '',
+    saving: false,
+  }
+
+  const SITE_ORIGIN = 'http://localhost:5173'
+
+  /* ------------------------------------------------------------ utils */
+
+  async function api(url, options) {
+    const res = await fetch(url, options)
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || '请求失败 (' + res.status + ')')
+    return data
+  }
+
+  function toast(message, type = '') {
+    const node = document.createElement('div')
+    node.className = 'toast ' + type
+    node.textContent = message
+    els.toast.appendChild(node)
+    requestAnimationFrame(() => node.classList.add('show'))
+    setTimeout(() => {
+      node.classList.remove('show')
+      setTimeout(() => node.remove(), 220)
+    }, 2200)
+  }
+
+  function currentCategory() {
+    return state.categories.find((c) => c.key === state.category) || { prefix: 'post', dir: 'blog', label: '' }
+  }
+
+  function setDirty(value) {
+    state.dirty = value
+    if (value) setStatus('未保存的修改')
+  }
+
+  function setStatus(text) {
+    els.status.textContent = text
+  }
+
+  function formatDate(value) {
+    if (!value) return '无日期'
+    return String(value).slice(0, 10)
+  }
+
+  /* ------------------------------------------------------------- data */
+
+  async function loadMeta() {
+    const data = await api('/api/meta')
+    state.categories = data.categories
+    state.defaultToday = data.today
+    els.date.value = data.today
+
+    els.cats.innerHTML = ''
+    for (const cat of state.categories) {
+      const btn = document.createElement('button')
+      btn.className = 'cat'
+      btn.textContent = cat.label
+      btn.dataset.key = cat.key
+      btn.addEventListener('click', () => switchCategory(cat.key))
+      els.cats.appendChild(btn)
+    }
+    paintCats()
+  }
+
+  function paintCats() {
+    for (const btn of els.cats.children) {
+      btn.classList.toggle('active', btn.dataset.key === state.category)
+    }
+  }
+
+  async function switchCategory(key) {
+    if (state.dirty && !confirm('当前有未保存的修改，切换后将丢失。继续？')) {
+      return
+    }
+    state.category = key
+    state.currentSlug = null
+    state.dirty = false
+    paintCats()
+    closeEditor()
+    await loadList()
+  }
+
+  async function loadList() {
+    const data = await api('/api/list?category=' + encodeURIComponent(state.category))
+    state.items = data.items
+    renderList()
+  }
+
+  function renderList() {
+    const keywords = state.keywords.trim().toLowerCase()
+    const items = keywords
+      ? state.items.filter((item) => {
+          const haystack = (item.title + ' ' + item.tags.join(' ')).toLowerCase()
+          return haystack.includes(keywords)
+        })
+      : state.items
+
+    els.list.innerHTML = ''
+
+    if (!items.length) {
+      const empty = document.createElement('div')
+      empty.className = 'empty-list'
+      empty.textContent = keywords ? '没有匹配的条目' : '这个栏目还没有内容'
+      els.list.appendChild(empty)
+      return
+    }
+
+    for (const item of items) {
+      const node = document.createElement('div')
+      node.className = 'item' + (item.slug === state.currentSlug ? ' active' : '')
+      node.dataset.slug = item.slug
+
+      const title = document.createElement('div')
+      title.className = 'item-title'
+      title.textContent = item.title || item.slug
+      if (item.draft) {
+        const badge = document.createElement('span')
+        badge.className = 'badge draft'
+        badge.textContent = '草稿'
+        title.appendChild(badge)
+      }
+      node.appendChild(title)
+
+      const meta = document.createElement('div')
+      meta.className = 'item-meta'
+      const date = document.createElement('span')
+      date.textContent = formatDate(item.date)
+      meta.appendChild(date)
+      if (item.tags.length) {
+        const badge = document.createElement('span')
+        badge.className = 'badge'
+        badge.textContent = item.tags[0] + (item.tags.length > 1 ? ' +' + (item.tags.length - 1) : '')
+        meta.appendChild(badge)
+      }
+      node.appendChild(meta)
+
+      node.addEventListener('click', () => openItem(item.slug))
+      els.list.appendChild(node)
+    }
+  }
+
+  function paintActive() {
+    for (const node of els.list.children) {
+      node.classList.toggle('active', node.dataset.slug === state.currentSlug)
+    }
+  }
+
+  /* ----------------------------------------------------------- editor */
+
+  async function openItem(slug) {
+    if (state.dirty && !confirm('当前有未保存的修改，切换后将丢失。继续？')) {
+      return
+    }
+    try {
+      const item = await api(
+        '/api/item?category=' + encodeURIComponent(state.category) + '&slug=' + encodeURIComponent(slug),
+      )
+      state.currentSlug = slug
+      state.dirty = false
+      els.placeholder.hidden = true
+      els.form.hidden = false
+      els.title.value = item.title
+      els.slug.value = item.slug
+      els.date.value = item.date || state.defaultToday
+      els.tags.value = item.tags.join(', ')
+      els.summary.value = item.summary
+      els.draft.checked = item.draft
+      els.content.value = item.content
+      els.deleteBtn.hidden = false
+      setStatus('已加载')
+      paintActive()
+      els.title.focus()
+    } catch (err) {
+      toast(err.message, 'error')
+    }
+  }
+
+  function closeEditor() {
+    els.form.hidden = true
+    els.placeholder.hidden = false
+    state.currentSlug = null
+  }
+
+  function newItem() {
+    if (state.dirty && !confirm('当前有未保存的修改，继续新建会丢失。继续？')) {
+      return
+    }
+    const conf = currentCategory()
+    const stamp = Date.now().toString(36).slice(-6)
+    const now = new Date()
+    const pad = (n) => String(n).padStart(2, '0')
+    const today = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate())
+
+    state.currentSlug = null
+    state.dirty = false
+    els.placeholder.hidden = true
+    els.form.hidden = false
+    els.title.value = ''
+    els.slug.value = conf.prefix + '-' + today.replace(/-/g, '') + '-' + stamp
+    els.date.value = today
+    els.tags.value = ''
+    els.summary.value = ''
+    els.draft.checked = false
+    els.content.value = '# 标题\n\n从这里开始写……\n'
+    els.deleteBtn.hidden = true
+    setStatus('新建中')
+    paintActive()
+    els.title.focus()
+  }
+
+  async function save(event) {
+    if (event) event.preventDefault()
+    if (state.saving) return
+
+    const payload = {
+      category: state.category,
+      slug: els.slug.value.trim(),
+      originalSlug: state.currentSlug,
+      title: els.title.value.trim(),
+      date: els.date.value,
+      tags: els.tags.value.split(/[,，]/).map((t) => t.trim()).filter(Boolean),
+      summary: els.summary.value.trim(),
+      draft: els.draft.checked,
+      content: els.content.value,
+    }
+
+    if (!payload.title) {
+      toast('先写个标题吧', 'error')
+      els.title.focus()
+      return
+    }
+    if (!payload.slug) {
+      toast('文件名不能为空', 'error')
+      els.slug.focus()
+      return
+    }
+
+    state.saving = true
+    els.status.textContent = '保存中…'
+    try {
+      const result = await api('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      state.currentSlug = result.slug
+      state.dirty = false
+      els.deleteBtn.hidden = false
+      await loadList()
+      paintActive()
+      setStatus('已保存 ' + new Date().toLocaleTimeString('zh-CN', { hour12: false }))
+      toast('已保存', 'ok')
+    } catch (err) {
+      setStatus('保存失败')
+      toast(err.message, 'error')
+    } finally {
+      state.saving = false
+    }
+  }
+
+  async function removeItem() {
+    if (!state.currentSlug) return
+    const item = state.items.find((i) => i.slug === state.currentSlug)
+    const label = item ? item.title : state.currentSlug
+    if (!confirm('确定删除「' + label + '」吗？\n文件会被直接删除，无法撤销。')) return
+
+    try {
+      await api(
+        '/api/item?category=' + encodeURIComponent(state.category) + '&slug=' + encodeURIComponent(state.currentSlug),
+        { method: 'DELETE' },
+      )
+      state.currentSlug = null
+      state.dirty = false
+      closeEditor()
+      await loadList()
+      toast('已删除', 'ok')
+    } catch (err) {
+      toast(err.message, 'error')
+    }
+  }
+
+  function preview() {
+    if (!state.currentSlug) {
+      toast('先保存再预览', 'error')
+      return
+    }
+    const conf = currentCategory()
+    window.open(
+      SITE_ORIGIN + '/' + conf.dir + '/' + encodeURIComponent(state.currentSlug),
+      '_blank',
+      'noreferrer',
+    )
+  }
+
+  /* ------------------------------------------------------------ image */
+
+  function readAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = () => reject(new Error('读取图片失败'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  function insertAtCursor(text) {
+    const area = els.content
+    const start = area.selectionStart ?? area.value.length
+    const end = area.selectionEnd ?? area.value.length
+    area.value = area.value.slice(0, start) + text + area.value.slice(end)
+    const pos = start + text.length
+    area.focus()
+    area.setSelectionRange(pos, pos)
+    setDirty(true)
+  }
+
+  els.fileInput.addEventListener('change', async () => {
+    const file = els.fileInput.files && els.fileInput.files[0]
+    els.fileInput.value = ''
+    if (!file) return
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast('图片不能超过 10 MB', 'error')
+      return
+    }
+
+    try {
+      const dataUrl = await readAsDataURL(file)
+      const result = await api('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, dataUrl }),
+      })
+      insertAtCursor('\n![](' + result.url + ')\n')
+      toast('图片已插入', 'ok')
+    } catch (err) {
+      toast(err.message, 'error')
+    }
+  })
+
+  /* ------------------------------------------------------------ events */
+
+  els.newBtn.addEventListener('click', newItem)
+  els.deleteBtn.addEventListener('click', removeItem)
+  els.uploadBtn.addEventListener('click', () => els.fileInput.click())
+  els.previewBtn.addEventListener('click', preview)
+  els.form.addEventListener('submit', save)
+  els.search.addEventListener('input', () => {
+    state.keywords = els.search.value
+    renderList()
+  })
+
+  for (const field of [els.title, els.slug, els.date, els.tags, els.summary, els.content]) {
+    field.addEventListener('input', () => setDirty(true))
+  }
+  els.draft.addEventListener('change', () => setDirty(true))
+
+  document.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault()
+      if (!els.form.hidden) save()
+    }
+  })
+
+  els.content.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      event.preventDefault()
+      insertAtCursor('  ')
+    }
+  })
+
+  window.addEventListener('beforeunload', (event) => {
+    if (state.dirty) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  })
+
+  /* -------------------------------------------------------------- init */
+
+  ;(async () => {
+    try {
+      await loadMeta()
+      await loadList()
+      els.headerStatus.textContent = '本地模式 · 直接写 Markdown'
+      // 探测 dev server 是否在运行，顺便给出提示
+      fetch(SITE_ORIGIN + '/', { mode: 'no-cors' }).catch(() => {
+        els.siteLink.title = '站点开发服务器似乎没启动，运行 npm run docs:dev'
+      })
+    } catch (err) {
+      toast('初始化失败：' + err.message, 'error')
+    }
+  })()
+})()
+</script>
+</body>
+</html>
