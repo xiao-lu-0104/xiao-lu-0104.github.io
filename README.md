@@ -119,6 +119,12 @@ npm run docs:preview   # 本地预览构建结果
 
 之后每次 `git push`，GitHub 会自动重新构建并发布。
 
+### 日常更新流程
+
+1. 双击 `start.bat` 打开管理台，编辑/新增/删除文章并保存
+2. 双击 `publish.bat`（或手动执行 `git add .` → `git commit -m "说明"` → `git push`）
+3. 等 1~2 分钟，刷新 https://xiao-lu-0104.github.io/ 查看
+
 > 注意：管理台只在本地运行，部署后没有写文件的能力。线上新增/修改内容的正确方式是编辑 Markdown 并 push。
 
 ## 目录结构
