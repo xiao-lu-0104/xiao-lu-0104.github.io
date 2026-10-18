@@ -18,7 +18,7 @@ export default defineConfig({
   title: profile.name,
   description: '个人主页 · 工程经历 · 博客 · 科研经历',
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/avatar.svg' }],
+    ['link', { rel: 'icon', type: 'image/jpeg', href: '/avatar.jpg' }],
     ['meta', { name: 'author', content: profile.name }],
     ['meta', { name: 'theme-color', content: '#4f6ef7' }],
   ],

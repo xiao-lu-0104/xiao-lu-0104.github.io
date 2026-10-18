@@ -24,9 +24,14 @@ if errorlevel 1 (
 git push
 if errorlevel 1 (
   echo.
-  echo   推送失败，请检查网络或 GitHub 登录状态。
-  pause
-  exit /b 1
+  echo   直连 GitHub 失败，尝试通过本地代理重试...
+  git -c http.proxy=http://127.0.0.1:7897 -c https.proxy=http://127.0.0.1:7897 push
+  if errorlevel 1 (
+    echo.
+    echo   推送仍然失败，请检查网络或代理是否可用。
+    pause
+    exit /b 1
+  )
 )
 
 echo.

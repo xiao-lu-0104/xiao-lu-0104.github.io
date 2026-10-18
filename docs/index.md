@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: Laurence
-  text: 嵌入式 · 模型量化
+  name: 芦恩祈
+  text: 嵌入式 · 芯片 · 量化
   tagline: 把踩过的坑记下来，因为下次一定还会踩。
   image:
-    src: /avatar.svg
-    alt: Laurence
+    src: /avatar.jpg
+    alt: 芦恩祈
   actions:
     - theme: brand
       text: 关于我
@@ -22,7 +22,7 @@ hero:
 features:
   - icon: 🛠️
     title: 工程经历
-    details: 西门子杯、电子设计竞赛、一生一芯……做过的东西都在这里。
+    details: 电赛 G 题、西门子杯、一生一芯……做过的东西都在这里。
     link: /engineering/
     linkText: 看看项目
   - icon: ✍️
@@ -32,7 +32,7 @@ features:
     linkText: 随便翻翻
   - icon: 🔬
     title: 科研经历
-    details: 模型压缩与 LVLM 量化方向的阅读、实验与思考。
+    details: 大模型量化方向的论文阅读、实验与思考。
     link: /research/
     linkText: 了解研究
 ---
