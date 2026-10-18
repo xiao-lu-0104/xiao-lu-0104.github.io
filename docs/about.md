@@ -14,7 +14,7 @@
 | 研究方向 | 模型压缩 / LVLM 量化 |
 | 所在地 | 中国 |
 | 邮箱 | [you@example.com](mailto:you@example.com) |
-| GitHub | [github.com/yourname](https://github.com/yourname) |
+| GitHub | [github.com/xiao-lu-0104](https://github.com/xiao-lu-0104) |
 | 状态 | 🟢 开放实习与合作 |
 
 ## 我在做什么
@@ -41,6 +41,6 @@
 ## 联系我
 
 - 邮件：you@example.com
-- GitHub：https://github.com/yourname
+- GitHub：https://github.com/xiao-lu-0104
 
 有问题或者想交流，欢迎直接发邮件。

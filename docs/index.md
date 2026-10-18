@@ -17,7 +17,7 @@ hero:
       link: /blog/
     - theme: alt
       text: GitHub
-      link: https://github.com/yourname
+      link: https://github.com/xiao-lu-0104
 
 features:
   - icon: 🛠️

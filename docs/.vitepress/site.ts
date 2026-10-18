@@ -37,7 +37,7 @@ export const profile = {
   ],
 
   email: 'you@example.com',
-  github: 'https://github.com/yourname',
+  github: 'https://github.com/xiao-lu-0104',
 
   /** 技能标签分组 */
   skills: [
