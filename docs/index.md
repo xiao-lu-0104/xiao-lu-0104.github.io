@@ -1,5 +1,6 @@
 ---
 layout: home
+title: 个人简介
 
 hero:
   name: 芦恩祈

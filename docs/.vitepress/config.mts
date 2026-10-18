@@ -16,6 +16,7 @@ export default defineConfig({
   base,
   lang: 'zh-CN',
   title: profile.name,
+  titleTemplate: `:title - ${profile.name}`,
   description: '个人主页 · 工程经历 · 博客 · 科研经历',
   head: [
     ['link', { rel: 'icon', type: 'image/jpeg', href: '/avatar.jpg' }],
